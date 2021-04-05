@@ -98,9 +98,9 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     hold on;
     mfreq = 700;
     LAMBD = C/mfreq;
-    R = (2*d.^2)./LAMBD;
+    R = (2*d_x.^2)./LAMBD;
     
-    plot(d, R, 'r')
+    plot(d_x, R, 'r')
     hold off;
     
     % _________________________.~Head Reference~.__________________________
@@ -225,9 +225,9 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
         % near field curve
         hold on;
         LAMBD = C/actual_f;
-        R = (2*d.^2)./LAMBD;
+        R = (2*d_x.^2)./LAMBD;
         
-        plot(d, R, 'r')
+        plot(d_x, R, 'r')
         hold off;
         
         % _________________________.~Head Reference~.__________________________
