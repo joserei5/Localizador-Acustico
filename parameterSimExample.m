@@ -17,7 +17,7 @@ room.temp = 90;
 
 src.d.min = 0;
 src.d.max = 7;
-src.theta = 0;
+% src.theta = 0;
 
 %% Execute
 iterParam1(room, src, epsilon, Nx, Nd, Ne)
