@@ -11,12 +11,14 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     f = figure;
     % Retrieve figure's width
     f_w = f.Position(3);
-    subplot(211)
-    subplot(212)
-    subplot(211)
+    subplot(221)
+    subplot(222)
+    subplot(2,2,[3 4])
+    subplot(221)
     
     % _________________________.~Initial setup~.___________________________
     % sound velocity
+
     C = 20.05*sqrt(273.15+room.temp);
     
     % theta range
@@ -55,7 +57,8 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     % ____________________________.~Algorithm~.____________________________
     realAz = zeros(Nd,Nx);      % ref for \epsilon=0
     azimuth = zeros(Nd,Nx);     % actual values
-    azimuth_e = zeros(Nd,Nx);   % azimuth error
+    azimuth_e = zeros(Nd,Nx);   % azimuth reference error
+    azimuth_re = ones(Nd,Nx);   % azimuth real error
     
     arg = C*(d_t+0)./d_x;
     arg(arg<-1) = -1;
@@ -67,25 +70,42 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     arg(arg>1) = 1;
     azimuth = acosd(arg);
     azimuth_e = realAz - azimuth;
+    azimuth_re = ones(Nd,Nx)*90 - azimuth;
+    
 
     
     % ______________________________.~Curve~.______________________________
     axf = findall(f,'type','axes');
+    
+    axf(3).PositionConstraint = 'OuterPosition';
+    axf(3).Position(4) = axf(3).Position(4)+axf(3).Position(2)*0.3;
+    axf(3).Position(2) = axf(3).Position(2)-axf(3).Position(2)*0.3;
+    
     axf(2).PositionConstraint = 'OuterPosition';
     axf(2).Position(4) = axf(2).Position(4)+axf(2).Position(2)*0.3;
     axf(2).Position(2) = axf(2).Position(2)-axf(2).Position(2)*0.3;
+    
     axf(1).PositionConstraint = 'OuterPosition';
     axf(1).Position(4) = axf(1).Position(4)-axf(1).Position(2)*0.8;
     axf(1).Position(2) = axf(1).Position(2)-axf(1).Position(2)*0.8;
     axf(1).Position(1) = axf(1).Position(1)+axf(1).Position(1)*5;
-    axf(1).PositionConstraint = 'InnerPosition';
     axf(1).Position(3) = axf(1).Position(3)-axf(1).Position(3)*0.75;
     
     % visualize curve f(delta_x, distance, error)
-    pcolor(d_x, d, abs(azimuth_e));
     tstr =  "Frequency = 500Hz | Theta = 90º | " +...
             "Epsilon = " + num2str(e(1)*1e6) + "uS";
-    title(tstr)
+    sgtitle(tstr)
+    axes(axf(3))
+    pcolor(d_x, d, abs(azimuth_e));
+    shading interp
+    xlabel('microphone spacing (m)')
+    ylabel('source distance (m)')
+    zlabel('azimuth error (º)')
+    zlim([0 45])
+    caxis([0 45])
+    colorbar
+    axes(axf(2))
+    pcolor(d_x, d, abs(azimuth_re));
     shading interp
     xlabel('microphone spacing (m)')
     ylabel('source distance (m)')
@@ -95,13 +115,15 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     colorbar
     
     % near field curve
-    hold on;
     mfreq = 700;
     LAMBD = C/mfreq;
     R = (2*d_x.^2)./LAMBD;
     
-    plot(d_x, R, 'r')
-    hold off;
+    axes(axf(3))
+    hold on;plot(d_x, R, 'r');hold off;
+    axes(axf(2))
+    hold on;plot(d_x, R, 'r');hold off;
+
     
     % _________________________.~Head Reference~.__________________________
     axes(axf(1))
@@ -205,16 +227,26 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
         arg(arg>1) = 1;
         azimuth = acosd(arg);
         azimuth_e = realAz - azimuth;
+        azimuth_re = ones(Nd,Nx)*actual_th - azimuth;
 
         % ____________________________.~Curve~.____________________________
         % visualize curve f(delta_x, distance, error)
-        axes(axf(2))
-        pcolor(d_x, d, abs(azimuth_e));
-        shading interp
         tstr =  "Frequency = " + num2str(actual_f) + "Hz | " +...
                 "Theta = " + num2str(actual_th) + " º | " +...
                 "Epsilon = " + num2str(actual_e) + "uS";
-        title(tstr)
+        sgtitle(tstr)
+        axes(axf(3))
+        pcolor(d_x, d, abs(azimuth_e));
+        shading interp
+        xlabel('microphone spacing (m)')
+        ylabel('source distance (m)')
+        zlabel('azimuth error (º)')
+        zlim([0 45])
+        caxis([0 45])
+        colorbar
+        axes(axf(2))
+        pcolor(d_x, d, abs(azimuth_re));
+        shading interp
         xlabel('microphone spacing (m)')
         ylabel('source distance (m)')
         zlabel('azimuth error (º)')
@@ -223,12 +255,14 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
         colorbar
         
         % near field curve
-        hold on;
         LAMBD = C/actual_f;
         R = (2*d_x.^2)./LAMBD;
         
-        plot(d_x, R, 'r')
-        hold off;
+        axes(axf(3))
+        hold on;plot(d_x, R, 'r');hold off;
+        axes(axf(2))
+        hold on;plot(d_x, R, 'r');hold off;
+
         
         % _________________________.~Head Reference~.__________________________
         axes(axf(1))

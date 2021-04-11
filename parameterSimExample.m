@@ -13,7 +13,7 @@ epsilon.max = +500e-6;
 
 room.mic.dX.min = 0;
 room.mic.dX.max = 2;
-room.temp = 90;
+room.temp = 20;
 
 src.d.min = 0;
 src.d.max = 7;
