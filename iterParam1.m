@@ -297,6 +297,14 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
         set(R_lbl_e, 'Position', [rl_w, 25, 45, 20]);
         set(R_lbl_th, 'Position', [rl_w-5, 50, 45, 20]);
         set(R_lbl_f, 'Position', [rl_w-5, 75, 45, 20]);
+        
+%         % Update azimuth indicator plot axis
+%         axf(1).Units = 'Pixels';
+%         axf(1).Position(4) = axf(1).Position(4)-axf(1).Position(2)*0.8;
+%         axf(1).Position(2) = axf(1).Position(2)-axf(1).Position(2)*0.8;
+%         axf(1).Position(1) = axf(1).Position(1)+axf(1).Position(1)*5;
+%         axf(1).Position(3) = axf(1).Position(3)-axf(1).Position(3)*0.75;
+        
     end
     
     % React to changes in the SB or figure
