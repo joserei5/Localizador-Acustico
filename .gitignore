@@ -1,6 +1,3 @@
-*.wav
-*.mp3
-mosquitoes
-mp3
-wav
 *.asv
+*headwall.mat
+*test_mov.mat
