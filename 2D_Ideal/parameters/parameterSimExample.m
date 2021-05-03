@@ -6,9 +6,9 @@ addpath ../../soundfiles/generic
 addpath ../../structures
 
 %% Parameters
-Nx = 100;              % no. points for Microphone Spacing (d_x)
-Nd =  80;              % no. points for distance (d)
-Ne = 2000;             % no. points for Epsilon range (\epsilon)
+Nx = 100;       % no. points for Microphone Spacing (d_x)
+Nd =  80;       % no. points for distance (d)
+Ne = 1000+1;    % no. points for Epsilon range (\epsilon)
 
 epsilon.min = -500e-6;
 epsilon.max = +500e-6;
