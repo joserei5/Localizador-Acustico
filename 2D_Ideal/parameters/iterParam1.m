@@ -102,8 +102,8 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     xlabel('microphone spacing (m)')
     ylabel('source distance (m)')
     zlabel('azimuth error (º)')
-    zlim([0 45])
-    caxis([0 45])
+    zlim([0 5])
+    caxis([0 5])
     colorbar
     
     axes(axf(2))
@@ -112,8 +112,12 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
     xlabel('microphone spacing (m)')
     ylabel('source distance (m)')
     zlabel('azimuth error (º)')
-    zlim([0 45])
-    caxis([0 45])
+    zlim([0 5])
+    caxis([0 5])
+    hold on; 
+    [~, re_c_p] = contour(d_x, d, azimuth_re, [1 1], 'Color', 'r');
+    [~, re_c_p2] = contour(d_x, d, azimuth_re, [5 5], 'Color', 'k');
+    hold off;
     colorbar
     
     % near field curve
@@ -245,6 +249,8 @@ function [] = iterParam1(room, src, epsilon, Nx, Nd, Ne)
 
         set(alg_p, 'XData', d_x, 'YData', d, 'CData', azimuth_e);
         set(re_p, 'XData', d_x, 'YData', d, 'CData', azimuth_re);
+        set(re_c_p, 'XData', d_x, 'YData', d, 'ZData', azimuth_re);
+        set(re_c_p2, 'XData', d_x, 'YData', d, 'ZData', azimuth_re);
         
         % near field curve
 %         LAMBD = C/actual_f;
