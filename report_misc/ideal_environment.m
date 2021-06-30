@@ -1,4 +1,4 @@
-clear;clc;close all;
+fclear;clc;close all;
 addpath ../simLocUS
 addpath ../functions
 addpath ../soundfiles/generic
