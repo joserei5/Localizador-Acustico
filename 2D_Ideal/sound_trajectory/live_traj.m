@@ -137,11 +137,9 @@ function savetraj (X,Y)
 end
 
 function gui(~,event)
-    if(event.Key == 's')
-        drawContainer();
-        set(gcf, 'WindowButtonMotionFcn', @pencil);
-        set(gcf, 'WindowButtonDownFcn', @actuator);
-    end
+    drawContainer();
+    set(gcf, 'WindowButtonMotionFcn', @pencil);
+    set(gcf, 'WindowButtonDownFcn', @actuator);
 end
 
 function drawContainer ()

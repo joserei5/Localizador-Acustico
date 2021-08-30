@@ -7,8 +7,9 @@ addpath ../structures
 addpath ../structures/trajectories
 
 %% read WAV audio
+tic
 WAV=        'mosquito.wav';
-[s, fs]=    audioread(WAV);
+[s, fs]=    audioread(WAV); 
 Ns=         length(s);
 t=          (1:Ns)*1/fs;
 
@@ -17,74 +18,49 @@ fl= 100;   % lower frequency bound
 fh= 20e3;  % upper frequency bound (<=80 kHz due to @KemoL10_TF)
 
 %% trajectory
-load    custom150621_1110
-TRAJ.X = TRAJ.X';
-TRAJ.Y = TRAJ.Y';
-NT = length(TRAJ.X);
+TRAJ=load('VariableVelocity.mat');
+THR = length(TRAJ.data.x);
 
-% velocity
-v=      0.25;
+waypoints = [TRAJ.data.x(1:THR), TRAJ.data.y(1:THR), TRAJ.data.z(1:THR)];
 
-% trajectory jump
-df=     v/fs;
+TRAJ.DX = diff(TRAJ.data.x(1:THR));
+TRAJ.DX = [0; TRAJ.DX];
+TRAJ.DY = diff(TRAJ.data.y(1:THR));
+TRAJ.DY = [0; TRAJ.DY];
 
-% interpolate multiple curves
-% F = scatteredInterpolant(TRAJ.X',TRAJ.Y', ones(length(TRAJ.X),1));
-% d.x = F.Points(:,1);
-% d.y = F.Points(:,2);
-% clear F TRAJ
+TRAJ.D = sqrt(TRAJ.DX.^2 + TRAJ.DY.^2);
+% fill empty distances
+% TRAJ.D(TRAJ.D == 0) = 1e-9;
 
-% rebuild trajectory
-difX=diff(TRAJ.X);
-difY=diff(TRAJ.Y);
+TRAJ.T = TRAJ.D ./ TRAJ.data.v(1:THR);
+TRAJ.T = cumsum(TRAJ.T);
 
+s_rate = 48e3;
+s_frames = s_rate;
+trajectory = waypointTrajectory(waypoints,'TimeOfArrival',TRAJ.T,'SampleRate', s_rate, 'SamplesPerFrame', s_frames);
 
-d.x=TRAJ.X(1);
-d.y=TRAJ.Y(1);
-
-for i=2:NT
-    % ALONG THE Y AXIS
-   if       (difX(i)==0) && (difY(i)~=0)
-       traj_done_y = TRAJ.Y(i-1):df:TRAJ.Y(i);
-       d.y=[d.y traj_done_y];
-       d.x=[d.x d.x(i-1)*ones(1,length(traj_done_y))];
-    % ALONG THE X AXIS
-   elseif   (difY(i)==0) && (difX(i)~=0)
-       traj_done_x = TRAJ.X(i-1):df:TRAJ.X(i);
-       d.x=[d.x traj_done_x];
-       d.y=[d.y d.y(i-1)*ones(1,length(traj_done_x))];
-    % ALONG BOTH AXIS
-   else
-       % STRONGER Y-AXIS or STRONGER X-AXIS
-       if   (difY(i) > difX(i)) || (difY(i) < difX(i))
-           Ns = length(TRAJ.X(i-1):df:TRAJ.X(i));
-           vratio.x = (difX(i)/(difX(i)+difY(i)))*df;
-           vratio.y = (difY(i)/(difX(i)+difY(i)))*df;
-           traj_done_x = TRAJ.X(i-1):vratio.x:TRAJ.X(i);
-           traj_done_y = TRAJ.Y(i-1):vratio.x:TRAJ.Y(i);
-%            Ntd.x = length(traj_done_x);
-%            Ntd.y = length(traj_done_y);
-%            if Nt
-            d.x=[d.x traj_done_x];
-            d.y=[d.y traj_done_y];
-           
-       % EMPTY DISTANCES
-       elseif (difY(i)==0) && (difX(i)==0)
-           % do nothing
-           d.x = [d.x TRAJ.X(i-1)];
-           d.y = [d.y TRAJ.Y(i-1)];
-           
-       % DISTANCE OF X-AXIS = DISTANCE OF Y-AXIS
-       else
-           % SAME DISTANCES (HALF VELOCITY)
-           traj_done_x = TRAJ.X(i-1):(df/2):TRAJ.X(i);
-           traj_done_y = TRAJ.Y(i-1):(df/2):TRAJ.Y(i);
-           d.x=[d.y traj_done_x];
-           d.y=[d.y traj_done_y];
-       end
+tx = [];
+ty = [];
+last_dump = round(round(TRAJ.T(end))*(s_rate/s_frames));
+prev_disp=-1;
+for i=1:last_dump
+   dump = trajectory();
+   tx = [tx; dump(:,1)];
+   ty = [ty; dump(:,2)];
+   
+   idx=round(i/last_dump*100);
+   if prev_disp ~= idx
+       prev_disp = idx;
+       fprintf("\r%d\n\b",idx)
    end
 end
 
+
+figure; plot(TRAJ.X, TRAJ.Y, 'b')
+hold on;
+plot(tx, ty, 'r');
+hold off;
+toc
 
 % N=      length(p_y);
 
