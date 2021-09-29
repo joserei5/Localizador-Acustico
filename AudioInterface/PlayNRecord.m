@@ -21,7 +21,7 @@ driversOUT
 qc.fs = 48e3;   % sampling frequency
 qc.b = 24;      % audio bits
 qc.dev.r = 1;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- input
-qc.dev.p = 6;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
+qc.dev.p = 7;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
 % recorder
 recObj = audiorecorder(qc.fs, qc.b, 2, qc.dev.r)
 % player -- frequency beep
@@ -37,7 +37,7 @@ droneObj = audioplayer(drone, dfs, qc.b, qc.dev.p)
 
 % WARNING LOOP
 LAPS = 0;
-BEEPS = 5;
+BEEPS = 10;
 while LAPS < BEEPS
    % reset timer
    TMR = tic;
@@ -79,5 +79,5 @@ figure;plot(t,y)
 sound(10*y,qc.fs)
 
 %% Save audio
-fname = join(['recording',datestr(now,'ddmmyy_HHMMSS'),'.wav']);
+fname = join(['../soundfiles/capture/','recording',datestr(now,'ddmmyy_HHMMSS'),'.wav']);
 audiowrite(fname,y,qc.fs);

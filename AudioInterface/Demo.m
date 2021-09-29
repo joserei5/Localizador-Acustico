@@ -21,9 +21,9 @@ CH.fs = qc.fs;
 CR = round(MED_N);     % correlation range=receiver distance + MED (in samples)
 
 %% AudioWriter
-snd = 'recording280921_172432.wav'; % recording directory
-BLK_t = 250e-3;                     % Block size = 100 ms
-BLK_N = BLK_t * qc.fs;   % Block size (in samples)
+snd = '../soundfiles/capture/recording290921_001002.wav'; % recording directory
+BLK_t = 250e-3;             % Block size = 100 ms
+BLK_N = BLK_t * qc.fs;      % Block size (in samples)
 
 fileReader = dsp.AudioFileReader(snd);
 fileReader.SamplesPerFrame = BLK_N;
