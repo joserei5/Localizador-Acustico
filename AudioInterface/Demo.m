@@ -21,7 +21,7 @@ CH.fs = qc.fs;
 CR = round(MED_N);     % correlation range=receiver distance + MED (in samples)
 
 %% AudioWriter
-snd = '../soundfiles/capture/recording290921_001002.wav'; % recording directory
+snd = '../soundfiles/capture/90deg/recording280921_234923.wav'; % recording directory
 BLK_t = 250e-3;             % Block size = 100 ms
 BLK_N = BLK_t * qc.fs;      % Block size (in samples)
 
