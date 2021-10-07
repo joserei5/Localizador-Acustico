@@ -4,7 +4,7 @@ clc;
 
 %% Audio device info
 qc.fs = 48e3;   % sampling frequency
-qc.b = 24;      % audio bits
+qc.b  = 24;      % audio bits
 
 %% Algorithm Variables
 MED_t = 2e-3;                   % maximum estimated delay = 1 ms
@@ -21,7 +21,7 @@ CH.fs = qc.fs;
 CR = round(MED_N);     % correlation range=receiver distance + MED (in samples)
 
 %% AudioWriter
-snd = '../soundfiles/capture/90deg/recording280921_234923.wav'; % recording directory
+snd = '../soundfiles/capture/0deg/recording290921_000412.wav'; % recording directory
 BLK_t = 250e-3;             % Block size = 100 ms
 BLK_N = BLK_t * qc.fs;      % Block size (in samples)
 
@@ -38,16 +38,18 @@ info(deviceWriter)
 %% Figures
 %"shed" + little space
 figure;
-rectangle('Position',[0 0 1.5 1.5])
+shed = rectangle('Position',[0 0 1 1]);
+shed.FaceColor = [.777 .777 .777];
 hold on;
 
 %receiver
-r.x=0.3;
+r.x=0.7;
 r.y=0.5;
 plot(r.x, r.y, 'r+');
 
 %detection line
 d = sqrt(1.5^2+1.5^2);
+d = 2*d;
 xx=r.x;
 yy=r.y;
 SP1=plot(xx, yy, 'r');
@@ -55,14 +57,14 @@ SP1.XDataSource = 'xx';
 SP1.YDataSource = 'yy';
 
 %axis lims
-xlim([0 1.5]);
-ylim([0 1.5]);
+axis equal
+xlim([0 3]);
+ylim([-1 2]);
 
 %title
 ETIME = 0;
 timetitle = sprintf("%.3f seconds",ETIME);
 title(timetitle);
-
 
 %% Detection Loop
 addpath ../functions
