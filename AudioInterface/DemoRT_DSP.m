@@ -22,7 +22,7 @@ driversOUT
 qc.fs = 48e3;   % sampling frequency
 qc.b = 24;      % audio bits
 qc.dev.r = 1;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- input
-qc.dev.p = 9;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
+qc.dev.p = 11;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
 
 BLK_t = 100*1e-3;   % Block size = 100 ms
 BLK_N = BLK_t*qc.fs;% Block size = samples
@@ -50,7 +50,7 @@ beepObj = audioplayer(fbeep, qc.fs, qc.b, qc.dev.p);
 MED_t = 1*1e-3;                 % maximum estimated delay = 1 ms
 MED_N = MED_t * qc.fs;          % maximum estimated delay (in samples)
 
-ROOM.T = 20;                    % room temperature (ºC)
+ROOM.T = 24.5;                    % room temperature (ºC)
 C = 20.05*sqrt(273.15 + ROOM.T);% sound velocity (m/s)
 REC.d = 29.5e-2;                % receiver distance = 29.5 cm
 
@@ -99,18 +99,19 @@ while 1
     CH.L = buffer(:,1);
     CH.R = buffer(:,2);
     
-    AOA = [AOA; detect_az1(CH,CR,C,REC.d)];
+%     AOA = detect_az1(CH,CR,C,REC.d);
+    AOA = detect_az2(CH,CR,C,REC.d);
     
-%     if ~isplaying(droneObj)
-%         play(droneObj);
-%     end
+    if ~isplaying(droneObj)
+        play(droneObj);
+    end
 
-    xx = [r.x r.x+d*cosd(90-AOA(i,1))];
-    yy = [r.y r.y+d*sind(90-AOA(i,1))];
+    xx = [r.x r.x+d*cosd(90-AOA)];
+    yy = [r.y r.y+d*sind(90-AOA)];
     
     %title
     ETIME = ETIME + BLK_t;
-    timetitle = sprintf("%.3f seconds",ETIME);
+    timetitle = sprintf("%.3f seconds | AOA = %.1f",ETIME,AOA);
     title(timetitle);
     
     refreshdata;

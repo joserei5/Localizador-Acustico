@@ -21,16 +21,19 @@ driversOUT
 qc.fs = 48e3;   % sampling frequency
 qc.b = 24;      % audio bits
 qc.dev.r = 1;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- input
-qc.dev.p = 7;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
+qc.dev.p = 11;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
 % recorder
 recObj = audiorecorder(qc.fs, qc.b, 2, qc.dev.r)
 % player -- frequency beep
 t = 0:1/qc.fs:0.25;
-fbeep = 0.25*sin(2*pi*250*t);
+fbeep = 0.1*sin(2*pi*250*t);
 beepObj = audioplayer(fbeep, qc.fs, qc.b, qc.dev.p)
 % player -- drone noise
-[drone, dfs] = audioread('drone1.mp3');
-droneObj = audioplayer(drone, dfs, qc.b, qc.dev.p)
+% [drone, dfs] = audioread('drone1.mp3');
+% droneObj = audioplayer(drone, dfs, qc.b, qc.dev.p)
+% player -- mosquito noise
+[mosquito, dfs] = audioread('mosquito2.wav');
+mosquitoObj = audioplayer(mosquito, dfs, qc.b, qc.dev.p)
 
 
 %% Record Audio
@@ -58,13 +61,15 @@ end
 clear TMR;
 
 % SEND DESIRED SAMPLE TO OUTPUT
-play(droneObj);
+% play(droneObj);
+play(mosquitoObj);
 
 % START RECORDING
 recordblocking(recObj, 10);
 
 % FORCE STOP OUTPUT
-stop(droneObj);
+% stop(droneObj);
+stop(mosquitoObj);
 
 % FINAL BEEP
 play(beepObj);
@@ -76,7 +81,7 @@ t=t';
 figure;plot(t,y)
 
 %% Listen to audio
-sound(10*y,qc.fs)
+% sound(10*y,qc.fs)
 
 %% Save audio
 fname = join(['../soundfiles/capture/','recording',datestr(now,'ddmmyy_HHMMSS'),'.wav']);

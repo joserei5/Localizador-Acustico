@@ -7,7 +7,7 @@ qc.fs = 48e3;   % sampling frequency
 qc.b  = 24;      % audio bits
 
 %% Algorithm Variables
-MED_t = 2e-3;                   % maximum estimated delay = 1 ms
+MED_t = 1e-3;                   % maximum estimated delay = 1 ms
 MED_N = MED_t * qc.fs;          % maximum estimated delay (in samples)
 
 ROOM.T = 23;                    % room temperature (ºC)
@@ -21,7 +21,7 @@ CH.fs = qc.fs;
 CR = round(MED_N);     % correlation range=receiver distance + MED (in samples)
 
 %% AudioWriter
-snd = '../soundfiles/capture/0deg/recording290921_000412.wav'; % recording directory
+snd = '../soundfiles/capture/recording131021_221428.wav'; % recording directory
 BLK_t = 250e-3;             % Block size = 100 ms
 BLK_N = BLK_t * qc.fs;      % Block size (in samples)
 
