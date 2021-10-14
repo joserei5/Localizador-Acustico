@@ -1,4 +1,4 @@
-function [AOA,D_X_2] = detect_az2(CH, CR, C, D_X)
+function [AOA,DELAY_t] = detect_az2(CH, CR, C, D_X)
 
 % [1] CH:
 % .L (left channel)
@@ -16,7 +16,7 @@ function [AOA,D_X_2] = detect_az2(CH, CR, C, D_X)
 %
 % [OUTPUT]
 % AOA = experimental angle-of-arrival
-% Delay = experimental delay (+/- ms)
+% DELAY_t = experimental delay (+/- ms)
 
     CH_CORR=            abs(xcorr(CH.L,CH.R,CR));
     [MAX, IDX]=   max(CH_CORR);
@@ -29,9 +29,6 @@ function [AOA,D_X_2] = detect_az2(CH, CR, C, D_X)
     % END OF INTERPOLATION
     DELAY_i=            (IDX-1) - CR;
     DELAY_t=            DELAY_i/CH.fs;
-    % EXPERIMENTAL D_X
-    D_X_2=              abs(DELAY_t) * C;
-    % END OF EXPERIMENTAL D_X
     arg_=               C*DELAY_t/(D_X);
     arg_(arg_>1)=       1;
     arg_(arg_<-1)=      -1;
