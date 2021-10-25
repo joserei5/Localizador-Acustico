@@ -19,7 +19,7 @@ function [AOA,DELAY_t] = detect_az2(CH, CR, C, D_X)
 % DELAY_t = experimental delay (+/- ms)
 
     CH_CORR=            abs(xcorr(CH.L,CH.R,CR));
-    [MAX, IDX]=   max(CH_CORR);
+    [MAX, IDX]=         max(CH_CORR);
     % INTERPOLATION
     if IDX > 1 && IDX < length(CH_CORR)
         OFFSET_i=       (CH_CORR(IDX-1) - CH_CORR(IDX+1))/...

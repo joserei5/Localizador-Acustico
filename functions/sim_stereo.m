@@ -73,5 +73,8 @@ function [yL, yR] = sim_stereo( varargin )
     % generate L + R channel (2 channels)
     yL = fftfilt(I(1,:),inAudio.s);
     yR = fftfilt(I(2,:),inAudio.s);
+    
+    % remove impulse response object
+    delete('headwall.mat');
 end
 

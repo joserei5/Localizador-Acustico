@@ -34,13 +34,17 @@ BLK_N = BLK_t * qc.fs;      % 100 blocks of 100ms (10 s of audio)
 %% Retrieve experimental results
 AOA1 = zeros(100,1);
 AOA2 = zeros(100,1);
-Delay = zeros(100,1);
+Delay2 = zeros(100,1);
+AOA3 = zeros(100,1);
+Delay3 = zeros(100,1);
 
 for i=1:100
     CH.L = y(1+(i-1)*BLK_N:i*BLK_N,1);
     CH.R = y(1+(i-1)*BLK_N:i*BLK_N,2);
     AOA1(i,1) = detect_az1(CH,CR,C,REC.d);
-    [AOA2(i,1), Delay(i,1)]= detect_az2(CH,CR,C,REC.d);
+    [AOA2(i,1), Delay2(i,1)]= detect_az2(CH,CR,C,REC.d);
+    [AOA3(i,1), Delay3(i,1)]= detect_az3(CH,CR,C,REC.d);
+
 end
 
 
@@ -50,11 +54,12 @@ t=BLK_t:BLK_t:10;
 plot(t,AOA1);
 hold on;
 plot(t,AOA2);
+plot(t,AOA3);
 hold off;
 xlabel('seconds')
 ylabel('AOA (degrees)')
 title('AOA(t)')
-legend('No Interp.','Interp.')
+legend('No Interp.','Interp. (quadr.)', 'Interp (spline)')
 
 %% Fix value "spikes"
 threshold = 10;
@@ -65,6 +70,9 @@ for i=1:100
     if AOA2(i,1) > median(AOA2)+threshold || AOA2(i,1) < median(AOA2)-threshold
         AOA2(i,1) = median(AOA2);
     end
+    if AOA3(i,1) > median(AOA3)+threshold || AOA3(i,1) < median(AOA3)-threshold
+        AOA3(i,1) = median(AOA3);
+    end
 end
 
 figure;
@@ -72,8 +80,9 @@ t=BLK_t:BLK_t:10;
 plot(t,AOA1);
 hold on;
 plot(t,AOA2);
+plot(t,AOA3);
 hold off;
 xlabel('seconds')
 ylabel('AOA (degrees)')
 title('AOA(t)')
-legend('No Interp.','Interp.')
+legend('No Interp.','Interp. (quadr.),','Interp. (spline)')
