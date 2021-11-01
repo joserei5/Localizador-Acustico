@@ -91,11 +91,12 @@ AOA.p2.error = abs(AOA.p2.error);
 
 %% Algorithm reference-values
 % theoretical AOA
-r_theta = linspace(0,180,Nf);
+Nn = 500;
+r_theta = linspace(0,180,Nn);
 
 % extremes value in seconds
 d_t_ext = [(cosd(0)*REC.d)/C (cosd(180)*REC.d)/C];
-d_t = linspace(d_t_ext(1), d_t_ext(2), Nf);
+d_t = linspace(d_t_ext(1), d_t_ext(2), Nn);
 
 % calc AOA with algorithm
 arg = C*(d_t+0)./REC.d;
@@ -107,17 +108,17 @@ alg_theta = acosd(arg);
 % AOA
 mainf=figure;
 hold on;
-plot(AOA.ref, AOA.p2.values)
+plot(AOA.ref, AOA.p2.values,'b')
 plot(AOA.ref, AOA.ref, 'r:')
-plot(r_theta, alg_theta, 'g')
+plot(r_theta, alg_theta, 'r')
 hold off;
 
 % AOA error
 errorf=figure;
 subplot(2,1,1)
-plot(AOA.ref, AOA.p2.error)
+plot(AOA.ref, AOA.p2.error,'b')
 subplot(2,1,2)
-semilogy(AOA.ref, AOA.p2.error)
+semilogy(AOA.ref, AOA.p2.error,'b')
 
 %% SIMULATOR Figures
 % load data
@@ -143,8 +144,8 @@ hold off;
 
 %% Titles and labels
 figure(mainf);
-xlabel('Azimuth reference (degrees)')
-ylabel('Predicted azimuth (degrees)')
+xlabel('AOA Reference (º)')
+ylabel('AOA Predicted (º)')
 legend( 'Interp (quadr.)',...
         'Azimuth reference', ...
         'Algorithm reference',...
@@ -155,5 +156,5 @@ axh=axes(errorf,'visible','off');
 axh.Title.Visible='on';
 axh.XLabel.Visible='on';
 axh.YLabel.Visible='on';
-xlabel(axh,'Azimuth reference (degrees)')
-ylabel(axh,'Predicted azimuth error (degrees)')
+xlabel(axh,'AOA Reference (º)')
+ylabel(axh,'AOA Predicted (º)')

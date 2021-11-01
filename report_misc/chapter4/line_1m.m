@@ -16,8 +16,8 @@ REC.DX = 29.2*1e-2; % receiver: microphone interdistance
 REC.th = [-45 45]; % receiver theta
 % Audio settings
 AUDIO.name = 'mosquito2.wav'; % audio(source) file name
-N = 100; % number of blocks used
 BLK_t = 100*1e-3; % block time size
+N = 10/BLK_t; % number of blocks used
 fl = 100; % lower frequency bound
 fh = 18e3; % higher frequency bound
 % Trajectory settings
@@ -111,7 +111,7 @@ for i=1:length(REC.th)
         [CH.L, CH.R] = sim_stereo(SS.REC, SS.ROOM, SPK, SS.AUDIO, 1);
         TMR=tic;
         [AOA(j,i),~] = detect_az3(CH, CR, C, REC.DX); %pred v3 (spline interp)
-    %     [AOA(j,i),~] = detect_az2(CH, CR, C, REC.DX); %pred v2 (3point interp)
+%         [AOA(j,i),~] = detect_az2(CH, CR, C, REC.DX); %pred v2 (3point interp)
     %     AOA(j,i) = detect_az1(CH, CR, C, REC.DX); %pred v1 (non-interp)
         ELAPSED=ELAPSED+toc(TMR);
     end
@@ -123,6 +123,15 @@ for i=1:length(REC.th)
     AOA_error(:,i) = abs(AOA(:,i) - TRAJ.th(:,i));
 end
 
+%% Adjust labels
+figure(mainf)
+subplot(2,length(REC.th),1)
+xlabel('m','Rotation',0)
+ylabel('m','Rotation',0)
+subplot(2,length(REC.th),2)
+xlabel('m','Rotation',0)
+ylabel('m','Rotation',0)
+
 %% Final figures
 figure(mainf);
 subplot(2,length(REC.th),length(REC.th)+1:2*length(REC.th));
@@ -130,13 +139,20 @@ plot(TRAJ.th, AOA,'b')
 hold on;
 plot(TRAJ.th, TRAJ.th, 'r:')
 hold off;
+xlabel('AOA Reference (º)')
+ylabel('AOA Predictor (º)')
 
 figure(errorf);
 subplot(2,1,1)
 plot(TRAJ.th, AOA_error, 'b')
 subplot(2,1,2)
 semilogy(TRAJ.th, AOA_error, 'b')
-
+axh=axes(errorf,'visible','off');
+axh.Title.Visible='on';
+axh.XLabel.Visible='on';
+axh.YLabel.Visible='on';
+xlabel(axh,'AOA Reference (º)')
+ylabel(axh,'AOA Error (º)')
 SIM.TRAJ.th = reshape(TRAJ.th,[],1);
 SIM.AOA = reshape(AOA,[],1);
 SIM.AOA_error = reshape(AOA_error,[],1);
