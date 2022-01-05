@@ -154,6 +154,12 @@ for i=1:length(REC.th)
         SPK.loc = TRAJ.xyz(j,:);
         % generate stereo samples (L+R)
         [CH.L, CH.R] = sim_stereo(SS.REC, SS.ROOM, SPK, SS.AUDIO, 1);
+        % apply white gaussian noise
+        % to each channel (separate noise for each channel)
+%         snr=-20;
+%         signalpower = 'measured';
+%         CH.L = awgn(CH.L, snr, signalpower);
+%         CH.R = awgn(CH.R, snr, signalpower);
         % start timer
         TMR=tic;
         [AOA(j,i),~] = detect_az3(CH, CR, C, REC.DX); %pred v3 (spline interp)
