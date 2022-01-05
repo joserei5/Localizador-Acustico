@@ -22,6 +22,7 @@ function ideal_wav(A, T, R, REC)
 %   .xyz :: location in space
 %   .th  :: theta (amzimuth or yaw)
 %   .phi :: phi (elevation or pitch)
+%   .DX  :: distance between each microphone
 %
 % Outputs:
 %   local .wav file with completion timestamp
@@ -51,7 +52,7 @@ if id==-1
     error("Function not located inside 'Localizador-Acustico/functions/'");
 end
 spath = join([repmat('../',1,id),'structures/recstruct.mat']);
-rec_ = Receiver(spath, 1);
+rec_ = Receiver(spath, REC.DX/(2*0.1));
 AM = addReceiver0(rec_, REC.xyz, [REC.th REC.phi]);
 % load audio
 [A.y, A.fs] = audioread(A.name);
