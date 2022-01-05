@@ -120,27 +120,6 @@ plot(AOA.ref, AOA.p2.error,'b')
 subplot(2,1,2)
 semilogy(AOA.ref, AOA.p2.error,'b')
 
-%% SIMULATOR Figures
-% load data
-SIM = load('../report_misc/chapter4/sim_line.mat');
-% set the minimum error equal to the experimental value
-% (pretty log plot)
-SIM.AOA_error(SIM.AOA_error==0) = min(AOA.p2.error);
-
-figure(mainf);
-hold on;
-plot(SIM.TRAJ.th, SIM.AOA,'k')
-hold off;
-
-figure(errorf);
-subplot(2,1,1)
-hold on;
-plot(SIM.TRAJ.th, SIM.AOA_error, 'k')
-hold off;
-subplot(2,1,2)
-hold on;
-semilogy(SIM.TRAJ.th, SIM.AOA_error, 'k')
-hold off;
 
 %% Titles and labels
 figure(mainf);
@@ -148,8 +127,7 @@ xlabel('AOA Reference (º)')
 ylabel('AOA Predicted (º)')
 legend( 'Interp (quadr.)',...
         'Azimuth reference', ...
-        'Algorithm reference',...
-        'Simulator reference');
+        'Algorithm reference');
 
 figure(errorf);
 axh=axes(errorf,'visible','off');
