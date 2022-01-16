@@ -1,6 +1,7 @@
 clear all;clc;close force all;
 addpath ../../functions
 addpath ../../simLocUS
+addpath ../../soundfiles/generic
 
 %% INIT
 % Room

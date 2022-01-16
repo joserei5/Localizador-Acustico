@@ -1,5 +1,5 @@
 %% Include paths + Clean script
-clear;clc;close all;
+clear;clc;close force all;
 addpath ../../functions
 addpath ../../soundfiles/generic
 addpath ../../simLocUS
@@ -20,8 +20,8 @@ REC.th = [-45 45];                  % theta (a.k.a. azimuth)
 Nth = length(REC.th);
 
 % [Audio settings]
-AUDIO.name = 'mosquito2.wav';   % audio(source) file name
-% AUDIO.name = 'drone1.mp3';      % audio(source) file name
+% AUDIO.name = 'mosquito2.wav';   % audio(source) file name
+AUDIO.name = 'drone1.mp3';      % audio(source) file name
 BLK_t = 100*1e-3;               % block time size
 N = 10/BLK_t;                   % number of blocks used
 fl = 100;                       % lower frequency bound
@@ -34,19 +34,24 @@ signalpower = 'measured';
 
 % [Trajectory settings]
 % -tm |----- 0 -----| tm 
-tm = 1; % trajectory half-length 
+% trajectory half-length 
+tm = 1; 
 
 % [Algorithm settings]
 MED_t = 1e-3;                       % maximum estimated delay
 C = 20.05*sqrt(273.15+ROOM.T);      % sound velocity
-%--
-AOA.theoretical.values = zeros(N,Nth*Nsnr);
-%--
-AOA.simulator.values = zeros(N,Nth*Nsnr);
-AOA.simulator.error = zeros(N,Nth*Nsnr);
-%--
-AOA.algorithm.values = zeros(N,Nth*Nsnr);
-AOA.algorithm.error = zeros(N,Nth*Nsnr);
+
+% [Structures]
+AOA.theoretical.values = zeros(N*Nth,1);
+AOA.algorithm.values = zeros(N*Nth,1);
+AOA.algorithm.error = zeros(N*Nth,1);
+AOA.simulator.values = zeros(N*Nth,Nsnr);
+AOA.simulator.error = zeros(N*Nth,Nsnr);
+
+
+% [Experience variables]
+% Number of experiences/repetitions
+REP = 1000;
 
 
 %% Process variables
@@ -72,7 +77,8 @@ SS.REC.mic.dmf = REC.DX/20e-2;      % distance multiplying factor:
                                     %      [0 diameter/2 0] * 2/diameter
                                     %  (2) [0 new_diameter/2 0]:
                                     %      [0 1 0] * new_diameter/2
-% room structure
+
+% [Room structure]
 SS.ROOM.size = ROOM.xyz;            % dimensions
 SS.ROOM.coeff = [0 0 0];            % reflection coefficients:
                                     %  |_[walls ceiling floor]
@@ -83,94 +89,123 @@ SS.ROOM.R.H = ROOM.H;               %  |_humidity
 SS.ROOM.R.fs = CH.fs;               %  |_sampling frequency
 SS.ROOM.R.fl = fl;                  %  |_lower freq. bound
 SS.ROOM.R.fh = fh;                  %  |_upper freq. bound
-% audio structure
+
+% [Audio structure]
 SS.AUDIO.fs = CH.fs;                % sampling frequency
 SS.AUDIO.fl = fl;                   % lower freq. bound
 SS.AUDIO.fh = fh;                   % upper freq. bound
 
+% [Trajectory]
+TRAJ.y = linspace(-tm,tm,N)' + REC.xyz(2);
+TRAJ.x = ones(N,1)*(REC.xyz(1)+REC.d);
+TRAJ.z = ones(N,1)*REC.xyz(3);
+TRAJ.xyz = [TRAJ.x TRAJ.y TRAJ.z];
 
-%% Initialize figure handles     
-errorf=figure;  % error figure (AOA errors)
+% [getTrajAOA.m]
+% SRC (source) structure
+SRC.traj.x = TRAJ.x;
+SRC.traj.y = TRAJ.y;
+% ROOM structure
+ROOM.rec.x = REC.xyz(1);
+ROOM.rec.y = REC.xyz(2);
+ROOM.rec.dx = REC.DX;
+for i=1:Nth
+    % indexing
+    i1 = N*(i-1) + 1;
+    i2 = N*i;
+    % update theta
+    ROOM.rec.azimuth = REC.th(i);
+    % retrieve values from function
+    AOA_ = getTrajAOA(SRC,ROOM);
+    % update structures
+    AOA.theoretical.values(i1:i2,1) = AOA_.theoretical;
+    AOA.algorithm.values(i1:i2,1) = AOA_.algorithm;
+    % algorithm structure error
+    AOA.algorithm.error(i1:i2,1) = abs( AOA_.theoretical - AOA_.algorithm );
+end
+
 
 
 %% Predictor Loop
 % for azimuth=-45º and azimuth=+45º
 
-idx=1; % global index
-for k=1:Nsnr
-    fprintf("SNR=%d dB\n", SNR(k));
-    for i=1:Nth
-        % [Trajectory]________________________________________
-        TRAJ.y = linspace(-tm,tm,N)' + REC.xyz(2);
-        TRAJ.x = ones(N,1)*(REC.xyz(1)+REC.d);
-        TRAJ.z = ones(N,1)*REC.xyz(3);
-        TRAJ.xyz = [TRAJ.x TRAJ.y TRAJ.z];
+% Initialize waitbar
+wb = waitbar(0,['0/' num2str(REP)]);
 
-        % [Theoterical Results]______________________________
-        SRC.traj.x = TRAJ.x;
-        SRC.traj.y = TRAJ.y;
-        ROOM.rec.x = REC.xyz(1);
-        ROOM.rec.y = REC.xyz(2);
-        ROOM.rec.dx = REC.DX;
-        ROOM.rec.azimuth = REC.th(i);
-        AOA_ = getTrajAOA(SRC,ROOM);
-        AOA.theoretical.values(:,idx) = AOA_.theoretical;
-        AOA.algorithm.values(:,idx) = AOA_.algorithm;
-        AOA.algorithm.error(:,idx) = abs( AOA_.theoretical - AOA_.algorithm );
+% initialize clock
+CLK = tic;
 
-        % [Predictor]________________________________________
-        % update theta for "sim_stereo.m"
-        SS.REC.th = REC.th(i);
+% Experience repetitions loop
+for NE=1:REP
+    
+    % global index
+    idx=1;
 
-        % elapsed time (timer)
-        ELAPSED=0;
-        % predictor loop
-        for j=1:N
-            % indexing
-            i1 = 1+(j-1)*BLK_N;
-            i2 = j*BLK_N;
-            % retrieve block samples
-            SS.AUDIO.s = AUDIO.y(i1 : i2, 1);
-            % update speaker location
-            SPK.loc = TRAJ.xyz(j,:);
-            % generate stereo samples (L+R)
-            [CH.L, CH.R] = sim_stereo(SS.REC, SS.ROOM, SPK, SS.AUDIO, 1);
-            % apply white gaussian noise
-            % to each channel (separate noise for each channel)
-            CH.L = awgn(CH.L, SNR(k), signalpower);
-            CH.R = awgn(CH.R, SNR(k), signalpower);
-            % start timer
-            TMR=tic;
-            [AOA.simulator.values(j,idx),~] = detect_az3(CH, CR, C, REC.DX); %pred v3 (spline interp)
-            % register lap (timer)
-            ELAPSED=ELAPSED+toc(TMR);
-            % calculate AOA error
-            AOA.simulator.error(j,idx) = abs(AOA.simulator.values(j,idx) - AOA.theoretical.values(j,idx));
-        end
-        % mean of elapsed time for the N blocks
-        ELAPSED = ELAPSED/N;
-
-        % main loop statistics
-        fprintf("========== RECEIVER THETA: %dº ==========\n", REC.th(i));
-        fprintf("Predictor avg time: %.3f us\n", ELAPSED*1e6);
-        fprintf("AOA: min=%.1fº max=%.1fº\n",min(AOA.simulator.values(:,idx)),max(AOA.simulator.values(:,idx)));
+    % SNR vector sweep loop
+    for k=1:Nsnr
         
+        % vector index
+        vidx=1;
+        
+        % Theta vector sweep loop
+        for i=1:Nth
+            % Predictor loop
+            for j=1:N
+                % indexing
+                i1 = 1+(j-1)*BLK_N;
+                i2 = j*BLK_N;
+                
+                % retrieve block samples
+                SS.AUDIO.s = AUDIO.y(i1 : i2, 1);
+                
+                % update speaker location
+                SPK.loc = TRAJ.xyz(j,:);
+                
+                % update SS structure's theta
+                SS.REC.th = REC.th(i);
+                % generate stereo samples (L+R)
+                [CH.L, CH.R] = sim_stereo(SS.REC, SS.ROOM, SPK, SS.AUDIO, 1);
+                
+                % apply white gaussian noise
+                % to each channel (separate noise for each channel)
+                CH.L = awgn(CH.L, SNR(k), signalpower);
+                CH.R = awgn(CH.R, SNR(k), signalpower);
+                
+                % predictor v3 (spline interpolation)
+                [EXP_AOA,~] = detect_az3(CH, CR, C, REC.DX);
+                EXP_ERROR = abs(EXP_AOA - AOA.theoretical.values(vidx,1));
+                
+                % sum current values to previous values
+                AOA.simulator.values(vidx,idx) = AOA.simulator.values(vidx,idx) + EXP_AOA;
+                AOA.simulator.error(vidx,idx) = AOA.simulator.error(vidx,idx)+ EXP_ERROR;
+                
+                % increment vector index
+                vidx = vidx + 1;
+            end
+        end
         % increment global index
         idx = idx + 1;
     end
-    fprintf('\n');
+
+    % update waitbar
+    waitbar(NE/REP,wb,[num2str(NE) '/' num2str(REP)]);
 end
 
-%% Final Results
-% reshape vectors
-AOA.algorithm.values = reshape(AOA.algorithm.values,[N*2,Nsnr]);
-AOA.algorithm.error = reshape(AOA.algorithm.error,[N*2,Nsnr]);
-AOA.theoretical.values = reshape(AOA.theoretical.values,[N*2,Nsnr]);
-AOA.simulator.values = reshape(AOA.simulator.values,[N*2,Nsnr]);
-AOA.simulator.error = reshape(AOA.simulator.error,[N*2,Nsnr]);
+% average the values
+AOA.simulator.values = AOA.simulator.values/REP;
+AOA.simulator.error = AOA.simulator.error/REP;
 
+% register time
+TMR = toc(CLK);
+clear CLK;
+
+% close waitbar
+close(wb);
+
+
+%% Final Results
 % error figure
-figure(errorf);
+errorf=figure;
 % determine Rows x Columns (RxC)
 for i=2:6
     if mod(Nsnr,i) == 0
@@ -183,9 +218,9 @@ end
 % plot
 for i=1:Nsnr
     subplot(RxC,RxC,i)
-        plot(AOA.theoretical.values(:,i), AOA.algorithm.error(:,i), 'g')
+        plot(AOA.theoretical.values(:,1), AOA.algorithm.error(:,1), 'g')
         hold on;
-        plot(AOA.theoretical.values(:,i), AOA.simulator.error(:,i), 'k')
+        plot(AOA.theoretical.values(:,1), AOA.simulator.error(:,i), 'k')
         hold off;
         xlim([0 180])
         title_string = sprintf('SNR = %d dB', SNR(i));
@@ -193,6 +228,3 @@ for i=1:Nsnr
         xlabel('AOA Reference (º)');
         ylabel('AOA Error (º)');
 end
-% legend('Algorithm','Simulator')
-% xlabel('AOA Reference (º)')
-% ylabel('AOA Error (º)')

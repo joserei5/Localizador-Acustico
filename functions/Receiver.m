@@ -64,8 +64,7 @@ classdef Receiver < handle
     methods
         % default constructor
         function obj = Receiver(struc, varargin)
-            % para já esta so a considerar a estrutura do ficheiro
-            % 'recstruct.mat'
+            % using 'recstruct.mat':
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % struc = *.mat file that contains the structure.
             % The structure must have the following field tree:
@@ -75,12 +74,12 @@ classdef Receiver < handle
             %               \__ s __. pos
             %                    |__. rc
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % [1] struc = receiver structure (saved file)
             load(struc);
             obj.mic = rec.mic;
             obj.s = rec.s;
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % dmf = distance multiplying factor
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % [2] dmf = distance multiplying factor
             if size(varargin,2) == 1
                 dmf = varargin{1};
                 % microphone
@@ -148,22 +147,10 @@ classdef Receiver < handle
         end
         
         function obj = cMicPos(obj, index, pos)
-            % structure check
-            if ((length(index)~=1) && (~isnumeric(index)))
-                error('Index must be a numeric scalar value.');
-            elseif (length(pos) ~= 3)
-                error('Coordinates must respect the format [x y z].');
-            elseif (~isnumeric(pos))
-                error('Coordinates must contain numeric values ONLY.');
-            end
-            
-            % integrity check
-            if(index <= 0)
-                error('Index must be a positive value (this is MATLAB).');
-            elseif(index > N)
-                error('Index should be smaller or equal to %d.', N);
-            end
-            
+        %__"cMicPos" #mic [x y z]
+        %changes the position coordinates of the #mic microphone
+            checkIndex(obj,index);
+            checkCoordinates(obj,pos);
             obj.mic.pos(index,:) = pos;
         end
         
@@ -315,6 +302,34 @@ classdef Receiver < handle
             s4 = varargin{5};
             obj.cWallPos(index, s1, s2, s3, s4);
             obj.cWallRC(index,varargin{6});
+        end
+        
+        function checkIndex(obj,index)
+            % structure check
+            Ni = length(index); % index length
+            if      Ni~=1
+                    error('Index must be a scalar value.');
+            elseif  ~isnumeric(index)
+                    error('Index must be a numeric value.');
+            end
+            % integrity check
+            Na = size(obj.mic.pos,1); % number of microphones arrays
+            if      index <= 0
+                error('Index must be a positive value (this is MATLAB).');
+            elseif  index > Na
+                error('Index should be smaller or equal to %d.', N);
+            end
+        end
+        
+        function checkCoordinates(obj,pos)
+            % number of points in each microphone array
+            Nc = size(obj.mic.pos,2); 
+            % check
+            if      Nc ~= 3
+                error('Coordinates must respect the format [x y z].');
+            elseif  ~isnumeric(pos)
+                error('Coordinates must contain numeric values ONLY.');
+            end
         end
         
     end
