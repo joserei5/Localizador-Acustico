@@ -10,7 +10,7 @@ Tbd = 0;
 syms x y z
 
 % Microphone (focus) spacing in centimeters
-Delta_x = 29.5 * 1e-2; 
+Delta_x = 29.2 * 1e-2; 
 % Microphone (focus) x-axis location
 c = Delta_x * 1/2;
 % Hyperbole Vertices distance
@@ -41,8 +41,11 @@ if Talt
         legend(cellstr(num2str(transpose(b)*1e2, '%.2f')))
 end
     
-figure
-    ax = fimplicit(abs(exp)==const);
+f2=figure;
+    ax = fimplicit(exp);
+    hold on;
+    ax = fimplicit(abs(exp)==const(2:end));
+    hold off;
     xlabel('x')
     ylabel('y')
     xlim([-c-.25*c c+.25*c]);
@@ -50,7 +53,7 @@ figure
 %     title(  '$\sqrt{(x+c)^2+y^2} - \sqrt{(x-c)^2+y^2} = \pm \: 2a$',...
 %             '$\Leftrightarrow (x/a)^2 - (y/b)^2 == 1 \quad \wedge \quad b^2=c^2-a^2$',...
 %             'Interpreter','latex')
-    legend(cellstr(num2str(transpose(const)*1e2, '%.2f')))
+    legend(cellstr(num2str(transpose(const./Delta_x), '%.1f')))
     
 %%
 if Tbd
