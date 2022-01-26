@@ -21,7 +21,7 @@ driversOUT
 qc.fs = 48e3;   % sampling frequency
 qc.b = 24;      % audio bits
 qc.dev.r = 1;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- input
-qc.dev.p = 11;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
+qc.dev.p = 8;   % 1-2 (QUAD-CAPTURE) (Windows DirectSound) -- output
 % recorder
 recObj = audiorecorder(qc.fs, qc.b, 2, qc.dev.r)
 % player -- frequency beep

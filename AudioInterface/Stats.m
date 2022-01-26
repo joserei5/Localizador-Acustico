@@ -39,8 +39,8 @@ AOA3 = zeros(100,1);
 Delay3 = zeros(100,1);
 
 for i=1:100
-    CH.L = y(1+(i-1)*BLK_N:i*BLK_N,1);
-    CH.R = y(1+(i-1)*BLK_N:i*BLK_N,2);
+    CH.L = y(1+(i-1)*BLK_N:i*BLK_N,2);
+    CH.R = y(1+(i-1)*BLK_N:i*BLK_N,1);
     AOA1(i,1) = detect_az1(CH,CR,C,REC.d);
     [AOA2(i,1), Delay2(i,1)]= detect_az2(CH,CR,C,REC.d);
     [AOA3(i,1), Delay3(i,1)]= detect_az3(CH,CR,C,REC.d);
