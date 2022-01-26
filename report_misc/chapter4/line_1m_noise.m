@@ -20,8 +20,8 @@ REC.th = [-45 45];                  % theta (a.k.a. azimuth)
 Nth = length(REC.th);
 
 % [Audio settings]
-% AUDIO.name = 'mosquito2.wav';   % audio(source) file name
-AUDIO.name = 'drone1.mp3';      % audio(source) file name
+AUDIO.name = 'mosquito2.wav';   % audio(source) file name
+% AUDIO.name = 'drone1.mp3';      % audio(source) file name
 BLK_t = 100*1e-3;               % block time size
 N = 10/BLK_t;                   % number of blocks used
 fl = 100;                       % lower frequency bound
@@ -130,7 +130,7 @@ end
 % for azimuth=-45º and azimuth=+45º
 
 % Initialize waitbar
-wb = waitbar(0,['0/' num2str(REP)]);
+% wb = waitbar(0,['0/' num2str(REP)]);
 
 % initialize clock
 CLK = tic;
@@ -139,12 +139,20 @@ CLK = tic;
 for NE=1:REP
     
     % global index
+    % SAME AS
+    % column counter;
+    % TIP: it resets when another experience is made, i.e.,
+    % when ALL the SNR values have been processed.
     idx=1;
 
     % SNR vector sweep loop
     for k=1:Nsnr
         
         % vector index
+        % SAME AS
+        % row counter;
+        % TIP: it resets when the column changes, i.e.,
+        % when the SNR changes.
         vidx=1;
         
         % Theta vector sweep loop
@@ -180,15 +188,23 @@ for NE=1:REP
                 AOA.simulator.error(vidx,idx) = AOA.simulator.error(vidx,idx)+ EXP_ERROR;
                 
                 % increment vector index
+                % OR
+                % change to the next row
                 vidx = vidx + 1;
             end
         end
+        
         % increment global index
+        % OR
+        % change to the next column
         idx = idx + 1;
     end
 
     % update waitbar
-    waitbar(NE/REP,wb,[num2str(NE) '/' num2str(REP)]);
+%     waitbar(NE/REP,wb,[num2str(NE) '/' num2str(REP)]);
+
+    fprintf(" %d\n",NE);
+
 end
 
 % average the values
@@ -198,9 +214,14 @@ AOA.simulator.error = AOA.simulator.error/REP;
 % register time
 TMR = toc(CLK);
 clear CLK;
+% print time
+TMR_.h = floor(TMR/3600);
+TMR_.m = floor(mod(TMR,3600)/60);
+TMR_.s = floor(mod(mod(TMR,3600),60));
+fprintf("%2dh%2dm%2ds\n",TMR_.h, TMR_.m, TMR_.s);
 
 % close waitbar
-close(wb);
+% close(wb);
 
 
 %% Final Results
