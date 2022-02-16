@@ -99,7 +99,7 @@ for i=1:last_dump
    dump = trajectory();
    tx = [tx; dump(:,1)];
    ty = [ty; dump(:,2)];
-   tz = [ty; dump(:,3)];
+   tz = [tz; dump(:,3)];
 
    % tn = minutes remaining
     ttt = toc;
