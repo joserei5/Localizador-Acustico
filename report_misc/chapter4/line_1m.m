@@ -91,10 +91,19 @@ errorf=figure;  % error figure (AOA errors)
 
 for i=1:length(REC.th)
     % [Trajectory]________________________________________
-    TRAJ.y = linspace(-tm,tm,N)' + REC.xyz(2);
-    TRAJ.x = ones(N,1)*(REC.xyz(1)+REC.d);
-    TRAJ.z = ones(N,1)*REC.xyz(3);
-    TRAJ.xyz = [TRAJ.x TRAJ.y TRAJ.z];
+    % [Trajectory - w/o delay]
+    TRAJ.v = 0.2;                                       % traj. velocity
+    BLK_d = BLK_t * TRAJ.v;                             % size (m) of a block
+                                                        % in a line traj.
+                                                        %
+                                                        % traj. y axis:
+    TRAJ.y = transpose( (REC.xyz(2)-tm)+BLK_d/2 :...    % Start: middle of block;
+                        BLK_d                   :...    % Increment: size of block;
+                        (REC.xyz(2)+tm));               % End: middle of last block.
+                                                        %
+    TRAJ.x = ones(N,1)*(REC.xyz(1)+REC.d);              % traj. x axis
+    TRAJ.z = ones(N,1)*REC.xyz(3);                      % traj. z axis
+    TRAJ.xyz = [TRAJ.x TRAJ.y TRAJ.z];                  % all axis traj. data
 %     TRAJ.th(:,i) = linspace(45,135,N) + REC.th(i);
 
     % [Theoterical Results]______________________________

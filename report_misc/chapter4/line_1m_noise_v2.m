@@ -52,7 +52,7 @@ AOA.simulator.error = zeros(N*Nth,Nsnr);
 
 % [Experience variables]
 % Number of experiences/repetitions
-REP = 100;
+REP = 100000;
 
 
 %% Process variables
@@ -206,8 +206,8 @@ for i=2:6
     end
 end
 % plot
-for i=1:Nsnr
-    subplot(RxC,RxC,i)
+for i=4:Nsnr
+    subplot(2,RxC,i-3)
         plot(AOA.theoretical.values(:,1), AOA.algorithm.error(:,1), 'g')
         hold on;
         plot(AOA.theoretical.values(:,1), AOA.simulator.error(:,i), 'k')
