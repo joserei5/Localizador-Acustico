@@ -66,7 +66,7 @@ M.R.y = ROOM.rec.y + rec_.mic.pos(2,2);
 d = sqrt( (ROOM.rec.x - SRC.traj.x).^2 + (ROOM.rec.y - SRC.traj.y).^2 );
 % 4.b) Point in trajectory to LEFT microphone
 d1 = sqrt( (M.L.x - SRC.traj.x).^2 + (M.L.y - SRC.traj.y).^2 );
-% 4.c) Point in trajectory to LEFT microphone
+% 4.c) Point in trajectory to RIGHT microphone
 d2 = sqrt( (M.R.x - SRC.traj.x).^2 + (M.R.y - SRC.traj.y).^2 );
 
 % Calculate theoretical AOA,
