@@ -61,9 +61,6 @@ M.L.y = ROOM.rec.y + rec_.mic.pos(1,2);
 M.R.x = ROOM.rec.x + rec_.mic.pos(2,1);
 M.R.y = ROOM.rec.y + rec_.mic.pos(2,2);
 
-% Calculate base of triangle
-b = ROOM.rec.y - SRC.traj.y;
-
 % 4) Calculate distances:
 % 4.a) Point in trajectory to center of receiver
 d = sqrt( (ROOM.rec.x - SRC.traj.x).^2 + (ROOM.rec.y - SRC.traj.y).^2 );
@@ -72,15 +69,22 @@ d1 = sqrt( (M.L.x - SRC.traj.x).^2 + (M.L.y - SRC.traj.y).^2 );
 % 4.c) Point in trajectory to LEFT microphone
 d2 = sqrt( (M.R.x - SRC.traj.x).^2 + (M.R.y - SRC.traj.y).^2 );
 
-% 3) L and R microphone coordinates
-M.L.x = ROOM.rec.x + rec_.mic.pos(1,1);
-M.L.y = ROOM.rec.y + rec_.mic.pos(1,2);
-M.R.x = ROOM.rec.x + rec_.mic.pos(2,1);
-M.R.y = ROOM.rec.y + rec_.mic.pos(2,2);
-
-% Calculate theoretical AOA:
-AOA.theoretical = acosd(b./d) + ROOM.rec.azimuth;
-
+% Calculate theoretical AOA,
+% based on a SSS triangle ("side, side, side")
+% and applying the law of cosine triangles
+%    C
+%    /\
+%   /  \
+%  /    \
+%A/______\B
+%
+% where a = length BC
+%       b = length AC
+%       c = length AB
+%
+% so, cos(A) = (b^2 + c^2 − a^2) / (2bc)
+%
+AOA.theoretical = acosd((ROOM.rec.dx.^2 + d1.^2 - d2.^2)./(2*ROOM.rec.dx*d1));
 
 % Predictor AOA
 dd = d1-d2;
